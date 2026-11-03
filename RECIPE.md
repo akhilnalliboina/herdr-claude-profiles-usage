@@ -25,7 +25,7 @@ right in light and dark themes.
   90% or when the API marks the limit as warning or critical.
 - Cards use `surface` with a `border` frame and 10 px corners on the
   `popover` background. The popup is 380 px wide, as tall as its cards, and scrolls
-  above 680 px of cards.
+  when the cards are taller than the room left in the window.
 
 ## How it behaves
 
@@ -76,14 +76,15 @@ right in light and dark themes.
   Utilization %" (GPU). Linux: `/proc/stat`, `/proc/meminfo`, `nvidia-smi`.
 - Shipped icon used: `mods/workspace-chrome/spinner.svg`. Own icon: `gauge.svg`.
 - To put a button on a tab bar mod:
-  `openOverlay({ mod: "usage", kind: "popup", width: 380, height: 560 })`.
+  `openOverlay({ mod: "usage", kind: "popup", width: 380, height, props: { popup: true, height } })`,
+  with `height` set to the room left below the popup in the window (at most 760).
 
 ## Watch out
 
-- A popup from `openOverlay` takes its height from its content and ignores
-  `height`. A root with `size_full` and a body with `flex_1` collapses to the
-  47 px header. The body uses `max_h(680)` and scrolls instead. A smaller cap that is
-  close to the content height cuts the last card off at the bottom.
+- A popup from `openOverlay` is as tall as its content, but never taller than
+  `height`: content past that is cut off, not scrolled. A root with `size_full`
+  and a body with `flex_1` collapses to the 47 px header. So pass the same
+  `height` in `props`; the body scrolls inside that height minus the header.
 - Herdr's `fs` has no `stat`. A folder is a name that `fs.readdir` opens;
   calling `fs.stat` throws and stops the refresh.
 - Never refresh an expired token from the mod. Claude Code rotates the refresh

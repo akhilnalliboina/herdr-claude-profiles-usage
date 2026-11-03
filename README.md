@@ -55,10 +55,14 @@ herdr-app check ~/.config/herdr-app/mods/usage
 ```
 
 Open it with `herdr-app do mod.open '{"name":"usage"}'`, or add a button to your
-tab bar mod that calls:
+tab bar mod that calls the code below. Herdr cuts a popup off at the height it
+was opened with, so read the window height in `render()` and pass the room left:
 
 ```js
-openOverlay({ mod: "usage", kind: "popup", width: 380, height: 560, props: { popup: true } });
+/** In render(): */ this.windowHeight = window.viewport_size().height;
+/** On click: */
+const height = Math.min(760, this.windowHeight - 56);
+openOverlay({ mod: "usage", kind: "popup", width: 380, height, at: { x, y: 40 }, props: { popup: true, height } });
 ```
 
 `RECIPE.md` describes the mod in full, including the optional status line snippet.

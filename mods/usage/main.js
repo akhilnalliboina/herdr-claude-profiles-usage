@@ -4,7 +4,7 @@ import { exec, home, theme, props, shared, setShared, openOverlay } from "herdr"
 import * as fs from "fs/promises";
 import { sha256Hex } from "./sha256.js";
 import { STATS_SCRIPT } from "./stats.js";
-import { USAGE_URL, OAUTH_BETA, CACHE_KEY, LIMITS_EVERY_MS, SYSTEM_EVERY_MS, LIMIT_LABELS, WARN_AT, ALERT_AT, FEED_MAX_AGE_MS, BODY_MAX_HEIGHT, PLAN_ORDER } from "./constants.js";
+import { USAGE_URL, OAUTH_BETA, CACHE_KEY, LIMITS_EVERY_MS, SYSTEM_EVERY_MS, LIMIT_LABELS, WARN_AT, ALERT_AT, FEED_MAX_AGE_MS, POPUP_MAX_HEIGHT, POPUP_DEFAULT_HEIGHT, HEADER_HEIGHT, WINDOW_GAP, BODY_MIN_HEIGHT, PLAN_ORDER } from "./constants.js";
 
 /** Every Claude Code config folder in the home folder: `~/.claude` and any `~/.claude-<name>`. */
 async function findProfiles() {
@@ -204,6 +204,12 @@ export default class Usage extends View {
       .children(children);
   }
 
+  /** The popup height the opener asked for. The body must fit inside it, or its end is cut off and cannot be scrolled to. */
+  bodyHeight() {
+    const height = Number(props().height) || POPUP_DEFAULT_HEIGHT;
+    return Math.max(BODY_MIN_HEIGHT, height - HEADER_HEIGHT);
+  }
+
   render() {
     const t = theme();
     if (!this.isPopup()) return this.button(t);
@@ -227,7 +233,7 @@ export default class Usage extends View {
         .child(svg("mods/usage/gauge.svg").size(15).text_color(t.muted))
         .child(div().text_size(14).font_semibold().child("Usage"))
         .when(this.loading, (el) => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).text_color(t.dim).spin(900))))
-      .child(v_flex().id("usage-body").max_h(BODY_MAX_HEIGHT).px(12).pb(12).gap(10).overflow_y_scrollbar()
+      .child(v_flex().id("usage-body").max_h(this.bodyHeight()).px(12).pb(12).gap(10).overflow_y_scrollbar()
         .child(this.card(t, "system", "This computer", null, systemRows))
         .children(accountCards)
         .when(!this.loading && !this.accounts.length, (el) => el.child(div().px(4).text_size(12).text_color(t.dim).child("No Claude Code profile found in the home folder."))));
@@ -235,9 +241,14 @@ export default class Usage extends View {
 
   /** The block form: a small button, for a layout that places this mod in a bar. */
   button(t) {
+    /** `window` can be read only while Herdr runs this view, so keep the height for the click. */
+    const windowHeight = window.viewport_size?.().height ?? 900;
     const session = this.accounts.flatMap((a) => a.limits ?? [])[0];
     return h_flex().id("usage-button").size_full().px(8).gap(5).items_center().rounded(6).text_size(12).text_color(t.muted)
-      .hover((s) => s.bg(t.hover)).on_click(() => openOverlay({ mod: "usage", kind: "popup", width: 380, height: 560, props: { popup: true } }))
+      .hover((s) => s.bg(t.hover)).on_click(() => {
+        const height = Math.min(POPUP_MAX_HEIGHT, windowHeight / 2 - WINDOW_GAP);
+        openOverlay({ mod: "usage", kind: "popup", width: 380, height, props: { popup: true, height } });
+      })
       .child(svg("mods/usage/gauge.svg").size(14))
       .child(session ? `${Math.round(session.percent)}%` : "Usage");
   }

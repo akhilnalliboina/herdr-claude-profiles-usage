@@ -30,12 +30,18 @@ export const ALERT_AT = 90;
 export const FEED_MAX_AGE_MS = 15 * 60000;
 
 /**
- * A popup opened with openOverlay takes the height of its content and ignores the asked
- * height, so the popup must not stretch to fill it: a body with flex_1 collapses to zero.
- * The body grows with its cards up to this height, then scrolls. It must stay well above
- * three cards (about 510 px, more with larger text), or the last card is cut off at the bottom.
+ * A popup from openOverlay is as tall as its content, but never taller than the height it
+ * was opened with: content past that is cut off, not scrolled. So the opener asks for the
+ * room left in the window, and the body scrolls inside that height minus the header.
+ * A body with flex_1 collapses to zero, because the popup sizes to its content.
  */
-export const BODY_MAX_HEIGHT = 680;
+export const POPUP_MAX_HEIGHT = 760;
+export const POPUP_DEFAULT_HEIGHT = 560;
+/** The header row above the scrolling body, in pixels. */
+export const HEADER_HEIGHT = 46;
+/** Space kept free between the popup and the bottom of the window. */
+export const WINDOW_GAP = 16;
+export const BODY_MIN_HEIGHT = 120;
 
 /** The order of profile cards by plan. A plan not in this list goes after these. */
 export const PLAN_ORDER = ["enterprise", "team", "max", "pro", "free"];
