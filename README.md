@@ -50,7 +50,7 @@ Ask the agent in Herdr to add this mod from the repo URL, or copy it yourself:
 
 ```sh
 git clone https://github.com/akhilnalliboina/herdr-claude-profiles-usage
-cp -R herdr-claude-profiles-usage/usage ~/.config/herdr-app/mods/usage
+cp -R herdr-claude-profiles-usage/mods/usage ~/.config/herdr-app/mods/usage
 herdr-app check ~/.config/herdr-app/mods/usage
 ```
 
